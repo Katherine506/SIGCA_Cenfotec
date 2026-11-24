@@ -18,7 +18,8 @@ content %}
 <h2 class="h4 mt-5 mb-4">Módulos del sistema</h2>
 
 <div class="row g-4">
-  <!-- HU-02: Consulta de disponibilidad -->
+  <!-- HU-02: Disponibilidad -->
+
   <div class="col-md-4">
     <div class="module-card h-100">
       <div class="module-icon">01</div>
@@ -43,6 +44,7 @@ content %}
   </div>
 
   <!-- HU-03: Registro de citas -->
+
   <div class="col-md-4">
     <div class="module-card h-100">
       <div class="module-icon">02</div>
@@ -51,17 +53,21 @@ content %}
 
       <p class="text-muted">Registra nuevas citas para los pacientes.</p>
 
-      <span class="badge text-bg-secondary"> Próximamente </span>
+      <span class="badge text-bg-success"> Disponible </span>
 
       <div class="mt-4">
-        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+        <a
+          href="{{ url_for('appointments.register') }}"
+          class="btn btn-primary w-100"
+        >
           Registrar cita
-        </button>
+        </a>
       </div>
     </div>
   </div>
 
   <!-- HU-04: Gestión de citas -->
+
   <div class="col-md-4">
     <div class="module-card h-100">
       <div class="module-icon">03</div>
