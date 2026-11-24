@@ -18,8 +18,9 @@ content %}
 <h2 class="h4 mt-5 mb-4">Módulos del sistema</h2>
 
 <div class="row g-4">
+  <!-- HU-02: Consulta de disponibilidad -->
   <div class="col-md-4">
-    <div class="module-card">
+    <div class="module-card h-100">
       <div class="module-icon">01</div>
 
       <h3 class="h5">Disponibilidad</h3>
@@ -28,12 +29,22 @@ content %}
         Consulta los horarios disponibles de los profesionales.
       </p>
 
-      <span class="badge text-bg-secondary"> Próximamente </span>
+      <span class="badge text-bg-success"> Disponible </span>
+
+      <div class="mt-4">
+        <a
+          href="{{ url_for('appointments.availability') }}"
+          class="btn btn-primary w-100"
+        >
+          Consultar disponibilidad
+        </a>
+      </div>
     </div>
   </div>
 
+  <!-- HU-03: Registro de citas -->
   <div class="col-md-4">
-    <div class="module-card">
+    <div class="module-card h-100">
       <div class="module-icon">02</div>
 
       <h3 class="h5">Registro de citas</h3>
@@ -41,11 +52,18 @@ content %}
       <p class="text-muted">Registra nuevas citas para los pacientes.</p>
 
       <span class="badge text-bg-secondary"> Próximamente </span>
+
+      <div class="mt-4">
+        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+          Registrar cita
+        </button>
+      </div>
     </div>
   </div>
 
+  <!-- HU-04: Gestión de citas -->
   <div class="col-md-4">
-    <div class="module-card">
+    <div class="module-card h-100">
       <div class="module-icon">03</div>
 
       <h3 class="h5">Gestión de citas</h3>
@@ -53,6 +71,12 @@ content %}
       <p class="text-muted">Consulta, reprograma y cancela citas.</p>
 
       <span class="badge text-bg-secondary"> Próximamente </span>
+
+      <div class="mt-4">
+        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+          Gestionar citas
+        </button>
+      </div>
     </div>
   </div>
 </div>
