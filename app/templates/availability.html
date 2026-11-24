@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %}Consulta de disponibilidad - SIGCA{%
+endblock %} {% block content %}
+
+<section class="availability-page">
+  <div class="availability-header">
+    <div>
+      <h1>Consulta de disponibilidad</h1>
+      <p>
+        Consulte los horarios de atención disponibles de los profesionales del
+        Centro Integral Horizonte.
+      </p>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="availability-back">
+      Volver al inicio
+    </a>
+  </div>
+
+  <div class="availability-card">
+    <h2>Consultar agenda</h2>
+
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      <div class="availability-form-grid">
+        <div class="availability-field">
+          {{ form.professional_id.label }} {{ form.professional_id(
+          class="availability-input" ) }} {% for error in
+          form.professional_id.errors %}
+          <span class="availability-error"> {{ error }} </span> {% endfor %}
+        </div>
+
+        <div class="availability-field">
+          {{ form.selected_date.label }} {{ form.selected_date(
+          class="availability-input" ) }} {% for error in
+          form.selected_date.errors %}
+          <span class="availability-error"> {{ error }} </span> {% endfor %}
+        </div>
+      </div>
+
+      {{ form.submit(class="availability-button") }}
+    </form>
+  </div>
+
+  {% if searched %}
+
+  <div class="availability-card">
+    <h2>Resultados de la consulta</h2>
+
+    {% if selected_professional %}
+
+    <p><strong>Profesional:</strong> {{ selected_professional.name }}</p>
+
+    <p><strong>Especialidad:</strong> {{ selected_professional.specialty }}</p>
+
+    <p><strong>Fecha:</strong> {{ selected_date.strftime('%d/%m/%Y') }}</p>
+
+    {% endif %}
+
+    <div class="availability-summary">
+      <div class="availability-stat">
+        <span>Espacios totales</span>
+        <strong>{{ slots | length }}</strong>
+      </div>
+
+      <div class="availability-stat stat-available">
+        <span>Disponibles</span>
+        <strong>{{ available_count }}</strong>
+      </div>
+
+      <div class="availability-stat stat-occupied">
+        <span>Ocupados</span>
+        <strong>{{ occupied_count }}</strong>
+      </div>
+    </div>
+
+    {% if slots %}
+
+    <div class="availability-slots">
+      {% for slot in slots %}
+
+      <div
+        class="availability-slot
+                            {{ 'slot-available'
+                               if slot.available
+                               else 'slot-occupied' }}"
+      >
+        <strong>{{ slot.time }}</strong>
+
+        <span> {{ 'Disponible' if slot.available else 'Ocupado' }} </span>
+      </div>
+
+      {% endfor %}
+    </div>
+
+    {% else %}
+
+    <div class="availability-empty">
+      El profesional no tiene horarios de atención para la fecha seleccionada.
+    </div>
+
+    {% endif %}
+  </div>
+
+  {% endif %}
+</section>
+
+{% endblock %}

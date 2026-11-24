@@ -6,6 +6,7 @@ from config import Config
 from app.extensions import db, login_manager, csrf
 from app.models import User
 from app.auth import auth_bp
+from app.appointments import appointments_bp
 
 
 @login_manager.user_loader
@@ -26,6 +27,7 @@ def create_app(config_class=Config):
     csrf.init_app(app)
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(appointments_bp)
 
     @app.route("/")
     @login_required
