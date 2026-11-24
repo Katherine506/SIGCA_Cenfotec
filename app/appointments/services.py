@@ -1,8 +1,5 @@
-
 from datetime import date, datetime, time, timedelta
-
 from sqlalchemy.exc import IntegrityError
-
 from app.models import Professional, Schedule, Appointment
 from app.extensions import db
 
@@ -203,6 +200,160 @@ def register_appointment(
 
         raise AppointmentError(
             "No fue posible registrar la cita. "
+            "El horario podría estar ocupado."
+        ) from error
+
+    return appointment
+
+# =========================================
+# HU-04 - Gestión de citas
+# =========================================
+
+def get_appointments(search="", status=""):
+
+    query = Appointment.query.join(Professional)
+
+    search = (search or "").strip()
+
+    if search:
+        query = query.filter(
+            Appointment.patient_name.contains(
+                search,
+                autoescape=True
+            )
+        )
+
+    if status in ("activa", "cancelada"):
+        query = query.filter(
+            Appointment.status == status
+        )
+
+    return query.order_by(
+        Appointment.date.asc(),
+        Appointment.start_time.asc()
+    ).all()
+
+
+# =========================================
+# Cancelación de citas
+# =========================================
+
+def cancel_appointment(appointment_id):
+
+    appointment = db.session.get(
+        Appointment,
+        appointment_id
+    )
+
+    if appointment is None:
+        raise AppointmentError(
+            "La cita seleccionada no existe."
+        )
+
+    if appointment.status == "cancelada":
+        raise AppointmentError(
+            "La cita ya se encuentra cancelada."
+        )
+
+    appointment.status = "cancelada"
+
+    try:
+        db.session.commit()
+
+    except IntegrityError as error:
+        db.session.rollback()
+
+        raise AppointmentError(
+            "No fue posible cancelar la cita."
+        ) from error
+
+    return appointment
+
+
+# =========================================
+# Reprogramación de citas
+# =========================================
+
+def reschedule_appointment(
+    appointment_id,
+    new_date,
+    new_time
+):
+
+    appointment = db.session.get(
+        Appointment,
+        appointment_id
+    )
+
+    if appointment is None:
+        raise AppointmentError(
+            "La cita seleccionada no existe."
+        )
+
+    if appointment.status != "activa":
+        raise AppointmentError(
+            "Solo se pueden reprogramar citas activas."
+        )
+
+    if (
+        not isinstance(new_date, date)
+        or isinstance(new_date, datetime)
+    ):
+        raise AppointmentError(
+            "La nueva fecha no es válida."
+        )
+
+    if new_date < date.today():
+        raise AppointmentError(
+            "No se permiten fechas anteriores."
+        )
+
+    try:
+        appointment_time = time.fromisoformat(new_time)
+
+    except (ValueError, TypeError):
+        raise AppointmentError(
+            "El nuevo horario no es válido."
+        )
+
+    if (
+        appointment_time.second
+        or appointment_time.microsecond
+        or appointment_time.tzinfo is not None
+    ):
+        raise AppointmentError(
+            "El nuevo horario no es válido."
+        )
+
+    if (
+        appointment.date == new_date
+        and appointment.start_time == appointment_time
+    ):
+        raise AppointmentError(
+            "Seleccione una fecha u horario diferente."
+        )
+
+    available_slots = get_available_slots(
+        appointment.professional_id,
+        new_date
+    )
+
+    if appointment_time.strftime("%H:%M") not in available_slots:
+        raise AppointmentError(
+            "El nuevo horario no está disponible."
+        )
+
+    appointment.date = new_date
+    appointment.start_time = appointment_time
+
+    try:
+        db.session.commit()
+
+    except IntegrityError as error:
+        db.session.rollback()
+
+        raise AppointmentError(
+            "No fue posible reprogramar la cita. "
             "El horario podría estar ocupado."
         ) from error
 

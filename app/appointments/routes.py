@@ -1,4 +1,18 @@
 
+from app.appointments.forms import (
+    AppointmentSearchForm,
+    RescheduleAppointmentForm,
+    CancelAppointmentForm
+)
+
+from app.appointments.services import (
+    get_appointments,
+    cancel_appointment,
+    reschedule_appointment
+)
+
+from app.models import Appointment
+
 from datetime import date
 
 from flask import (
@@ -257,4 +271,183 @@ def register():
         "register_appointment.html",
         form=form,
         today=date.today().isoformat()
+    )
+
+# =========================================
+# HU-04 - Gestión de citas
+# =========================================
+
+@appointments_bp.route("/manage", methods=["GET"])
+@login_required
+def manage():
+
+    search = request.args.get("search", "").strip()[:120]
+    status = request.args.get("status", "")
+
+    form = AppointmentSearchForm(
+        formdata=None,
+        search=search,
+        status=status
+    )
+
+    appointments = get_appointments(
+        search=search,
+        status=status
+    )
+
+    total_count = Appointment.query.count()
+
+    active_count = Appointment.query.filter_by(
+        status="activa"
+    ).count()
+
+    cancelled_count = Appointment.query.filter_by(
+        status="cancelada"
+    ).count()
+
+    cancel_form = CancelAppointmentForm()
+
+    return render_template(
+        "manage_appointments.html",
+        form=form,
+        appointments=appointments,
+        total_count=total_count,
+        active_count=active_count,
+        cancelled_count=cancelled_count,
+        cancel_form=cancel_form
+    )
+
+
+# =========================================
+# HU-04 - Reprogramación de citas
+# =========================================
+
+@appointments_bp.route(
+    "/<int:appointment_id>/reschedule",
+    methods=["GET", "POST"]
+)
+@login_required
+def reschedule(appointment_id):
+
+    appointment = db.session.get(
+        Appointment,
+        appointment_id
+    )
+
+    if appointment is None:
+
+        flash("La cita seleccionada no existe.", "danger")
+
+        return redirect(
+            url_for("appointments.manage")
+        )
+
+    if appointment.status != "activa":
+
+        flash(
+            "Solo se pueden reprogramar citas activas.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("appointments.manage")
+        )
+
+    form = RescheduleAppointmentForm()
+
+    if request.method == "GET":
+
+        form.selected_date.data = max(
+            appointment.date,
+            date.today()
+        )
+
+    slots = []
+
+    if (
+        form.selected_date.data
+        and form.selected_date.data >= date.today()
+    ):
+
+        slots = get_available_slots(
+            appointment.professional_id,
+            form.selected_date.data
+        )
+
+    form.start_time.choices = [
+        ("", "Seleccione un horario")
+    ] + [
+        (slot, slot)
+        for slot in slots
+    ]
+
+    if form.validate_on_submit():
+
+        try:
+
+            reschedule_appointment(
+                appointment_id=appointment_id,
+                new_date=form.selected_date.data,
+                new_time=form.start_time.data
+            )
+
+            flash(
+                "Cita reprogramada correctamente.",
+                "success"
+            )
+
+            return redirect(
+                url_for("appointments.manage")
+            )
+
+        except AppointmentError as error:
+
+            flash(str(error), "danger")
+
+    return render_template(
+        "reschedule_appointment.html",
+        form=form,
+        appointment=appointment,
+        today=date.today().isoformat()
+    )
+
+
+# =========================================
+# HU-04 - Cancelación de citas
+# =========================================
+
+@appointments_bp.route(
+    "/<int:appointment_id>/cancel",
+    methods=["POST"]
+)
+@login_required
+def cancel(appointment_id):
+
+    form = CancelAppointmentForm()
+
+    if form.validate_on_submit():
+
+        try:
+
+            cancel_appointment(appointment_id)
+
+            flash(
+                "Cita cancelada correctamente. "
+                "El horario ha sido liberado.",
+                "success"
+            )
+
+        except AppointmentError as error:
+
+            flash(str(error), "danger")
+
+    else:
+
+        flash(
+            "No fue posible validar la solicitud.",
+            "danger"
+        )
+
+    return redirect(
+        url_for("appointments.manage")
     )
