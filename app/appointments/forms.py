@@ -1,4 +1,3 @@
-
 from datetime import date
 
 from flask_wtf import FlaskForm
@@ -88,3 +87,62 @@ class AppointmentForm(FlaskForm):
     )
 
     submit = SubmitField("Registrar cita")
+
+
+# =========================================
+# HU-04 - Gestión de citas
+# =========================================
+
+class AppointmentSearchForm(FlaskForm):
+
+    search = StringField(
+        "Buscar paciente",
+        validators=[
+            Length(max=120)
+        ]
+    )
+
+    status = SelectField(
+        "Estado",
+        choices=[
+            ("", "Todos los estados"),
+            ("activa", "Activas"),
+            ("cancelada", "Canceladas")
+        ]
+    )
+
+    submit = SubmitField("Buscar")
+
+
+class RescheduleAppointmentForm(FlaskForm):
+
+    selected_date = DateField(
+        "Nueva fecha de atención",
+        format="%Y-%m-%d",
+        validators=[
+            DataRequired(
+                message="Seleccione una fecha válida."
+            )
+        ]
+    )
+
+    start_time = SelectField(
+        "Nuevo horario",
+        choices=[],
+        validators=[
+            DataRequired(
+                message="Seleccione un horario disponible."
+            )
+        ]
+    )
+
+    submit = SubmitField(
+        "Confirmar reprogramación"
+    )
+
+
+class CancelAppointmentForm(FlaskForm):
+
+    submit = SubmitField(
+        "Confirmar cancelación"
+    )

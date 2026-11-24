@@ -68,6 +68,8 @@ content %}
 
   <!-- HU-04: Gestión de citas -->
 
+  <!-- HU-04: Gestión de citas -->
+
   <div class="col-md-4">
     <div class="module-card h-100">
       <div class="module-icon">03</div>
@@ -76,12 +78,15 @@ content %}
 
       <p class="text-muted">Consulta, reprograma y cancela citas.</p>
 
-      <span class="badge text-bg-secondary"> Próximamente </span>
+      <span class="badge text-bg-success"> Disponible </span>
 
       <div class="mt-4">
-        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+        <a
+          href="{{ url_for('appointments.manage') }}"
+          class="btn btn-primary w-100"
+        >
           Gestionar citas
-        </button>
+        </a>
       </div>
     </div>
   </div>

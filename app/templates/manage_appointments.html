@@ -1,0 +1,172 @@
+{% extends "base.html" %} {% block title %}Gestión de citas | SIGCA{% endblock
+%} {% block content %}
+
+<section class="availability-page">
+  <div class="availability-header">
+    <div>
+      <h1>Gestión de citas</h1>
+
+      <p>
+        Consulte, reprograme y cancele las citas del Centro Integral Horizonte.
+      </p>
+    </div>
+
+    <a href="{{ url_for('index') }}" class="availability-back">
+      Volver al inicio
+    </a>
+  </div>
+
+  <div class="management-summary">
+    <div class="management-stat">
+      <span>Total de citas</span>
+      <strong>{{ total_count }}</strong>
+    </div>
+
+    <div class="management-stat">
+      <span>Citas activas</span>
+      <strong class="text-success"> {{ active_count }} </strong>
+    </div>
+
+    <div class="management-stat">
+      <span>Citas canceladas</span>
+      <strong class="text-danger"> {{ cancelled_count }} </strong>
+    </div>
+  </div>
+
+  <div class="availability-card">
+    <h2>Buscar citas</h2>
+
+    <form method="GET" action="{{ url_for('appointments.manage') }}">
+      <div class="management-filters">
+        <div class="availability-field">
+          {{ form.search.label }} {{ form.search( class="availability-input",
+          placeholder="Nombre del paciente" ) }}
+        </div>
+
+        <div class="availability-field">
+          {{ form.status.label }} {{ form.status( class="availability-input" )
+          }}
+        </div>
+
+        <div class="management-filter-actions">
+          {{ form.submit( class="availability-button" ) }}
+
+          <a
+            href="{{ url_for('appointments.manage') }}"
+            class="btn btn-outline-secondary"
+          >
+            Limpiar
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="availability-card mt-4">
+    <div class="management-table-header">
+      <h2>Citas registradas</h2>
+
+      <a href="{{ url_for('appointments.register') }}" class="btn btn-primary">
+        Nueva cita
+      </a>
+    </div>
+
+    {% if appointments %}
+
+    <div class="table-responsive">
+      <table class="table management-table">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Profesional</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for appointment in appointments %}
+
+          <tr>
+            <td>
+              <strong> {{ appointment.patient_name }} </strong>
+            </td>
+
+            <td>
+              {{ appointment.professional.name }}
+
+              <small class="d-block text-muted">
+                {{ appointment.professional.specialty }}
+              </small>
+            </td>
+
+            <td>{{ appointment.date.strftime('%d/%m/%Y') }}</td>
+
+            <td>{{ appointment.start_time.strftime('%H:%M') }}</td>
+
+            <td>
+              {% if appointment.status == "activa" %}
+
+              <span class="badge text-bg-success"> Activa </span> {% else %}
+
+              <span class="badge text-bg-danger"> Cancelada </span> {% endif %}
+            </td>
+
+            <td>
+              {% if appointment.status == "activa" %}
+
+              <div class="management-row-actions">
+                <a
+                  href="{{ url_for(
+                        'appointments.reschedule',
+                        appointment_id=appointment.id
+                      ) }}"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  Reprogramar
+                </a>
+
+                <form
+                  method="POST"
+                  action="{{ url_for(
+                              'appointments.cancel',
+                              appointment_id=appointment.id
+                            ) }}"
+                  onsubmit="
+                    return confirm('¿Está seguro de cancelar esta cita?');
+                  "
+                >
+                  {{ cancel_form.hidden_tag() }}
+
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    Cancelar
+                  </button>
+                </form>
+              </div>
+
+              {% else %}
+
+              <span class="text-muted"> Sin acciones </span> {% endif %}
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+
+    <div class="management-empty">
+      <h3>No se encontraron citas</h3>
+
+      <p>No existen citas que coincidan con los criterios seleccionados.</p>
+    </div>
+
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

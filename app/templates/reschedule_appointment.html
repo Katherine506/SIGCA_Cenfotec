@@ -1,0 +1,195 @@
+{% extends "base.html" %} {% block title %}Reprogramar cita | SIGCA{% endblock
+%} {% block content %}
+
+<section class="availability-page">
+  <div class="availability-header">
+    <div>
+      <h1>Reprogramar cita</h1>
+
+      <p>Seleccione una nueva fecha y horario disponible.</p>
+    </div>
+
+    <a href="{{ url_for('appointments.manage') }}" class="availability-back">
+      Volver a gestión de citas
+    </a>
+  </div>
+
+  <div class="availability-card">
+    <h2>Información de la cita actual</h2>
+
+    <div class="appointment-detail-grid">
+      <div>
+        <span>Paciente</span>
+
+        <strong> {{ appointment.patient_name }} </strong>
+      </div>
+
+      <div>
+        <span>Profesional</span>
+
+        <strong> {{ appointment.professional.name }} </strong>
+      </div>
+
+      <div>
+        <span>Fecha actual</span>
+
+        <strong> {{ appointment.date.strftime('%d/%m/%Y') }} </strong>
+      </div>
+
+      <div>
+        <span>Horario actual</span>
+
+        <strong> {{ appointment.start_time.strftime('%H:%M') }} </strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="availability-card mt-4">
+    <h2>Nuevo horario</h2>
+
+    <form
+      method="POST"
+      id="reschedule-form"
+      data-professional="{{ appointment.professional_id }}"
+      data-endpoint="{{ url_for('appointments.available_slots') }}"
+    >
+      {{ form.hidden_tag() }}
+
+      <div class="appointment-form-grid">
+        <div class="availability-field">
+          {{ form.selected_date.label }} {{ form.selected_date(
+          class="availability-input", min=today ) }} {% for error in
+          form.selected_date.errors %}
+
+          <span class="availability-error"> {{ error }} </span> {% endfor %}
+        </div>
+
+        <div class="availability-field">
+          {{ form.start_time.label }} {{ form.start_time(
+          class="availability-input" ) }} {% for error in form.start_time.errors
+          %}
+
+          <span class="availability-error"> {{ error }} </span> {% endfor %}
+
+          <small id="slot-message" class="text-muted" aria-live="polite">
+            Seleccione una nueva fecha y horario.
+          </small>
+        </div>
+      </div>
+
+      <div class="appointment-actions">
+        {{ form.submit( class="availability-button" ) }}
+
+        <a
+          href="{{ url_for('appointments.manage') }}"
+          class="btn btn-outline-secondary"
+        >
+          Volver sin guardar
+        </a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const rescheduleForm = document.getElementById("reschedule-form");
+
+  const dateField = document.getElementById("selected_date");
+
+  const timeField = document.getElementById("start_time");
+
+  const slotMessage = document.getElementById("slot-message");
+
+  const submitButton = document.getElementById("submit");
+
+  const endpoint = rescheduleForm.dataset.endpoint;
+
+  const professionalId = rescheduleForm.dataset.professional;
+
+  let activeRequest = null;
+
+  async function loadAvailableSlots() {
+    if (activeRequest) {
+      activeRequest.abort();
+    }
+
+    const controller = new AbortController();
+
+    activeRequest = controller;
+
+    timeField.replaceChildren(new Option("Seleccione un horario", ""));
+
+    timeField.disabled = true;
+    submitButton.disabled = true;
+
+    if (!dateField.value) {
+      slotMessage.textContent = "Seleccione una fecha válida.";
+
+      return;
+    }
+
+    slotMessage.textContent = "Consultando horarios disponibles...";
+
+    const params = new URLSearchParams({
+      professional_id: professionalId,
+      date: dateField.value,
+    });
+
+    try {
+      const response = await fetch(endpoint + "?" + params.toString(), {
+        signal: controller.signal,
+      });
+
+      const data = await response.json();
+
+      if (controller.signal.aborted) {
+        return;
+      }
+
+      if (!response.ok) {
+        slotMessage.textContent =
+          data.error || "No fue posible consultar los horarios.";
+
+        return;
+      }
+
+      if (data.slots.length === 0) {
+        slotMessage.textContent =
+          "No hay horarios disponibles para esta fecha.";
+
+        return;
+      }
+
+      data.slots.forEach(function (slot) {
+        timeField.add(new Option(slot, slot));
+      });
+
+      timeField.disabled = false;
+
+      slotMessage.textContent = data.slots.length + " horarios disponibles.";
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        slotMessage.textContent = "Error al consultar la disponibilidad.";
+      }
+    }
+  }
+
+  dateField.addEventListener("change", loadAvailableSlots);
+
+  timeField.addEventListener("change", function () {
+    submitButton.disabled = !timeField.value;
+  });
+
+  timeField.disabled = timeField.options.length <= 1;
+
+  submitButton.disabled = !timeField.value;
+
+  if (timeField.options.length > 1) {
+    slotMessage.textContent =
+      timeField.options.length - 1 + " horarios disponibles.";
+  } else {
+    slotMessage.textContent = "No hay horarios disponibles para esta fecha.";
+  }
+</script>
+
+{% endblock %}
