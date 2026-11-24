@@ -1,0 +1,60 @@
+{% extends "base.html" %} {% block title %}Inicio | SIGCA{% endblock %} {% block
+content %}
+
+<div class="welcome-card">
+  <span class="section-label"> CENTRO INTEGRAL HORIZONTE </span>
+
+  <h1 class="mt-3">Bienvenido, {{ current_user.name }}</h1>
+
+  <p class="text-muted">Sistema Integrado de Gestión de Citas y Agenda.</p>
+
+  <span class="badge text-bg-success"> Sesión activa </span>
+
+  <span class="badge text-bg-secondary">
+    {{ current_user.role | capitalize }}
+  </span>
+</div>
+
+<h2 class="h4 mt-5 mb-4">Módulos del sistema</h2>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="module-card">
+      <div class="module-icon">01</div>
+
+      <h3 class="h5">Disponibilidad</h3>
+
+      <p class="text-muted">
+        Consulta los horarios disponibles de los profesionales.
+      </p>
+
+      <span class="badge text-bg-secondary"> Próximamente </span>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="module-card">
+      <div class="module-icon">02</div>
+
+      <h3 class="h5">Registro de citas</h3>
+
+      <p class="text-muted">Registra nuevas citas para los pacientes.</p>
+
+      <span class="badge text-bg-secondary"> Próximamente </span>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="module-card">
+      <div class="module-icon">03</div>
+
+      <h3 class="h5">Gestión de citas</h3>
+
+      <p class="text-muted">Consulta, reprograma y cancela citas.</p>
+
+      <span class="badge text-bg-secondary"> Próximamente </span>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

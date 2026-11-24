@@ -27,3 +27,11 @@ htmlcov/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Test and coverage reports
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+test-results.xml
+.pytest_cache/

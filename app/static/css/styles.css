@@ -1,0 +1,115 @@
+:root {
+  --primary: #173b57;
+  --secondary: #287d94;
+  --background: #f0f5f8;
+  --text: #243447;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.sigca-navbar {
+  background-color: var(--primary);
+  padding: 16px 0;
+}
+
+.navbar-brand {
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.login-container {
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  padding: 35px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+.brand-icon {
+  width: 60px;
+  height: 60px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 40px;
+  border-radius: 14px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 3px;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-control {
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.welcome-card,
+.module-card {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 30px;
+}
+
+.module-card {
+  height: 100%;
+}
+
+.module-icon {
+  color: var(--secondary);
+  font-size: 25px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.section-label {
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+footer {
+  color: #64748b;
+  font-size: 13px;
+}

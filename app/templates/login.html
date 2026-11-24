@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block title %}Iniciar sesión | SIGCA{% endblock %}
+{% block content %}
+
+<div class="login-container">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <div class="brand-icon">+</div>
+
+      <h1 class="brand-title">SIGCA</h1>
+
+      <p class="text-muted">Centro Integral Horizonte</p>
+    </div>
+
+    <hr />
+
+    <h2 class="h4 mb-2">Iniciar sesión</h2>
+
+    <p class="text-muted mb-4">Ingresa tus credenciales para continuar.</p>
+
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }} {{ form.email(
+        class="form-control", placeholder="usuario@horizonte.com",
+        autocomplete="username" ) }} {% for error in form.email.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-4">
+        {{ form.password.label(class="form-label") }} {{ form.password(
+        class="form-control", placeholder="Ingrese su contraseña",
+        autocomplete="current-password" ) }} {% for error in
+        form.password.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {{ form.submit( class="btn btn-primary w-100" ) }}
+    </form>
+
+    <p class="text-center text-muted small mt-4 mb-0">
+      Acceso exclusivo para personal autorizado.
+    </p>
+  </div>
+</div>
+
+{% endblock %}
